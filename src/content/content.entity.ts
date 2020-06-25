@@ -6,6 +6,7 @@ import {
     PrimaryColumn,
 } from 'typeorm';
 import { IsString, IsNotEmpty } from 'class-validator';
+import { PostStatus } from '../enum/post.status.enum'
 
 @Entity()
 export class Content {
@@ -27,6 +28,13 @@ export class Content {
 
     @Column()
     public content: string;
+
+    @Column({
+        type: 'enum',
+        enum: PostStatus,
+        default: PostStatus.draft
+    })
+    public status!: PostStatus
 
     @CreateDateColumn({
         type: 'timestamp',

@@ -6,4 +6,8 @@ export class ContentDto {
     public readonly title: string
     @IsString()
     public readonly content: string
+
+    @IsString()
+    @IsNotEmpty()
+    public readonly status: number
 }
