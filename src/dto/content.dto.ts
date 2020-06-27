@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty } from 'class-validator'
 export class ContentDto {
     public id: string
-    @IsString()
+    @IsString() 
     @IsNotEmpty()
     public readonly title: string
     @IsString()
@@ -10,4 +10,9 @@ export class ContentDto {
     @IsString()
     @IsNotEmpty()
     public readonly status: number
+
+    @IsNotEmpty()
+    public readonly authorId: number
+
+    public anthor?: string
 }

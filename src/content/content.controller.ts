@@ -18,9 +18,16 @@ export class ContentController {
         return this.contentService.contentList(dto)
     }
 
+    @UsePipes(new DefaultPaginationPipe())
+    @MessagePattern({ cmd: 'post list' })
+    public getPosts(dto: ContentPaginationDto) {
+        return this.contentService.posts(dto)
+    }
+
     @UsePipes(new ValidationPipe())
     @MessagePattern({ cmd: 'create post' })
     public createMenu(dto: ContentDto) {
+        console.log(dto)
         return this.contentService.createPost(dto)
     }
 
@@ -36,7 +43,7 @@ export class ContentController {
     }
 
     @MessagePattern({ cmd: 'post detail' })
-    public menuDetail(id: string) {
-        return this.contentService.contentDetail(id)
+    public menuDetail(params: any) {
+        return this.contentService.contentDetail(params)
     }
 }

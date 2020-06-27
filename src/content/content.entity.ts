@@ -30,6 +30,17 @@ export class Content {
     public content: string;
 
     @Column({
+        length: 128,
+        default: 'evan',
+    })
+    public author: string;
+
+    @Column({
+        default: 10,
+    })
+    public authorId: number;
+
+    @Column({
         type: 'enum',
         enum: PostStatus,
         default: PostStatus.draft

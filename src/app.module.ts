@@ -17,7 +17,7 @@ dotenv.config();
             type: 'mysql',
             username: process.env.DB_ADMIN_USERNAME,
         }),
-        MenuModule,
+        MenuModule
     ],
 })
 export class AppModule {}

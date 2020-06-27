@@ -4,7 +4,7 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { ExceptionFilter } from './common/filters/exceptionFilter'
 
-const logger = new Logger('Account service')
+const logger = new Logger('Content service')
 
 const microserviceOptions = {
     transport: Transport.TCP,

@@ -1,14 +1,18 @@
-import { Injectable, Logger, HttpStatus } from '@nestjs/common';
+import { Injectable, Logger, HttpStatus, Inject } from '@nestjs/common';
 import { Content } from './content.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ContentDto } from '../dto/content.dto';
 import snowflake from '../common/snowflake';
 import { ContentPaginationDto} from '../dto/content.pagination.dto'
+import { ClientProxy } from '@nestjs/microservices'
+import { PostStatus } from '../enum/post.status.enum'
 
 @Injectable()
 export class ContentService {
     constructor(
+        @Inject('ACCOUNT_CLIENT')
+        private readonly client: ClientProxy,
         @InjectRepository(Content)
         private readonly contentRepository: Repository<Content>,
     ) {}
@@ -20,9 +24,31 @@ export class ContentService {
             .createQueryBuilder('c')
             .where('c.title like :title')
             .andWhere("c.status = :status")
+            .andWhere("c.authorId = :authorId")
             .setParameters({
                 title: `%${params.title ? params.title : ''}%`, // 用户名模糊查询
-                status: params.status
+                status: params.status,
+                authorId: params.authorId
+            })
+            .orderBy('c.id', 'DESC')
+            .skip((params.page - 1) * params.pageSize)
+            .take(params.pageSize)
+            .getManyAndCount()
+
+        this.logger.log(contents)
+        return {
+            code: HttpStatus.OK,
+            data: contents[0],
+            total: contents[1]
+        }
+    }
+
+    public async posts(params : ContentPaginationDto) {
+        const contents = await this.contentRepository
+            .createQueryBuilder('c')
+            .andWhere("c.status = :status")
+            .setParameters({
+                status: PostStatus.Release,
             })
             .orderBy('c.id', 'DESC')
             .skip((params.page - 1) * params.pageSize)
@@ -38,10 +64,15 @@ export class ContentService {
     }
 
     public async createPost(dto: ContentDto) {
+        const user = await this.client.send({ cmd: 'user detail' }, dto.authorId).toPromise()
+        .catch(error => {
+            this.logger.error(error)
+        })
         const snowflakeId: string = snowflake.generate()
         dto.id = snowflakeId
-        let newMenu: Content = Object.assign(new Content(), dto)
-        await this.contentRepository.save(Object.assign(new Content(), newMenu))
+        dto.anthor = user.name
+        let newPost: Content = Object.assign(new Content(), dto)
+        await this.contentRepository.save(Object.assign(new Content(), newPost))
 
         return {
             code: HttpStatus.OK
@@ -63,8 +94,16 @@ export class ContentService {
         }
     }
 
-    public async contentDetail(id: string) {
+    public async contentDetail(params: any) {
+        const { userId, id} = params
+        console.log(userId)
+        const user = await this.client.send({ cmd: 'user detail' }, userId).toPromise()
+        .catch(error => {
+            this.logger.error(error)
+        })
+        this.logger.log(user)
         const content = await this.contentRepository.findOne({ id })
+        this.logger.log(content)
         return {
             code: HttpStatus.OK,
             content
