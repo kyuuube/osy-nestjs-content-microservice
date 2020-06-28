@@ -3,6 +3,7 @@ import { Transport } from '@nestjs/microservices'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { ExceptionFilter } from './common/filters/exceptionFilter'
+import * as bodyParser from 'body-parser';
 
 const logger = new Logger('Content service')
 
@@ -20,6 +21,8 @@ async function bootstrap() {
         microserviceOptions
     )
     app.useGlobalFilters(new ExceptionFilter())
+    // app.use(bodyParser.json({limit: '50mb'}));
+    // app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
     app.listen(() => {
         logger.log('content microservice is listening')
     })

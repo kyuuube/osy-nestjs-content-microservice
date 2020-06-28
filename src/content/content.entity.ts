@@ -26,7 +26,7 @@ export class Content {
     @IsString()
     public title: string;
 
-    @Column()
+    @Column("text")
     public content: string;
 
     @Column({
